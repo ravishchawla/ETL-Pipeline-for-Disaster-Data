@@ -28,6 +28,7 @@ def load_data(database_filepath):
     X = df['message']
     Y = df.select_dtypes('int64').drop('id', axis=1)
     
+    conn.close();
     return X, Y, Y.columns;
 
 def tokenize(text):
