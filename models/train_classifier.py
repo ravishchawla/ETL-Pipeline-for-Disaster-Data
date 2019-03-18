@@ -6,13 +6,13 @@ import re;
 from nltk import word_tokenize, pos_tag;
 from nltk.corpus import stopwords;
 from nltk.stem.wordnet import WordNetLemmatizer;
+from sklearn.model_selection import GridSearchCV;
 from sklearn.pipeline import Pipeline;
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer;
 from sklearn.ensemble import RandomForestClassifier;
 from sklearn.multioutput import MultiOutputClassifier;
 from sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix;
-from sklearn.cross_validation import train_test_split;
-import seaborn as sns;
+from sklearn.model_selection import train_test_split;
 import numpy as np;
 import nltk;
 import pickle;
@@ -41,12 +41,17 @@ def tokenize(text):
     return lemmed;
 
 def build_model():
-    forest = RandomForestClassifier(n_estimators=10, random_state=1024, criterion='gini', max_depth=5, max_features=5);
+    forest = RandomForestClassifier(n_estimators=10, random_state=1024);
     pipeline = Pipeline([('count', CountVectorizer(tokenizer=tokenize)),
                          ('tfidf', TfidfTransformer()),
                          ('model', MultiOutputClassifier(estimator=forest, n_jobs=1))
                         ]);
-    return pipeline;
+
+    parameters = {'model__estimator__max_depth' : [5, 10], 'model__estimator__max_features' : [5, 10], 'model__estimator__criterion' : ['gini', 'entropy']};
+
+    cv = GridSearchCV(pipeline, param_grid=parameters, verbose=2);
+
+    return cv;
 
 
 def evaluate_model(model, X_test, Y_test, category_names):

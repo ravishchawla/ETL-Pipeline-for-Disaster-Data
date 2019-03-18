@@ -4,15 +4,18 @@ import pandas as pd
 
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
+import matplotlib as mpl
+
 
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
 from sklearn.externals import joblib
 from sqlalchemy import create_engine
-
+from wordcloud_plotly import plotly_wordcloud
 
 app = Flask(__name__)
+mpl.use('TkAgg')
 
 def tokenize(text):
     tokens = word_tokenize(text)
@@ -42,7 +45,11 @@ def index():
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
-    
+    val_sums = df.select_dtypes('int64').drop('id', axis=1).sum(axis=0);
+    val_sums = val_sums.sort_values(ascending=False);
+
+    all_messages = ' '.join(df['message']);
+
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
     graphs = [
@@ -63,9 +70,29 @@ def index():
                     'title': "Genre"
                 }
             }
+        },
+        {
+            'data' : [
+                Bar(
+                    x=val_sums.index,
+                    y=val_sums.values
+                )
+            ],
+
+            'layout' : {
+                'title': 'Total values from each category',
+                'yaxis': {
+                    'title': 'Count'
+                },
+                'xaxis': {
+                    'title': 'Category'
+                }
+            }
         }
     ]
     
+    graphs.append(plotly_wordcloud(all_messages))
+
     # encode plotly graphs in JSON
     ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
