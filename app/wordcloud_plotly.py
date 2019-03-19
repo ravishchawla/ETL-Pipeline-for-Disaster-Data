@@ -3,6 +3,11 @@
 from wordcloud import WordCloud, STOPWORDS
 from plotly.graph_objs import Scatter
 
+'''
+Draws a wordcloud using Plotly
+Args: text: the text used to generate the wordcloud
+Returns: trace: JSON configuration for a scatter plot positioning the words in a chart
+'''
 def plotly_wordcloud(text):
     wc = WordCloud(stopwords = set(STOPWORDS),
                    max_words = 200,

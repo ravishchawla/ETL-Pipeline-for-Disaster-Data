@@ -3,6 +3,12 @@ import pandas as pd;
 import numpy as np;
 from sqlalchemy import create_engine;
 
+'''
+Loads data from files and creates a dataframe
+Args: message_filepath: file location for the messages data
+      categories_filepath: file location for the categories data
+Returns: df: A merged dataframe of the two datasets on ID
+'''
 def load_data(messages_filepath, categories_filepath):
     messages = pd.read_csv(messages_filepath)
 
@@ -12,6 +18,11 @@ def load_data(messages_filepath, categories_filepath):
     
     return df;
 
+'''
+Pre-processing and cleaning the dataset
+Args: df: The dataframe to process
+Returns: df: The processed dataframe, with categories expanded as dummy variables and duplicates removed
+'''
 def clean_data(df):
     categories = df['categories'].str.split(';', expand=True)
     category_colnames = [x[:-2] for x in categories.iloc[0].values];
@@ -25,10 +36,18 @@ def clean_data(df):
 
     return df;
 
+'''
+Saves the dataset into a sql database file
+Args: df: The dataframe to save
+      database_filename: the file in which to save the data file
+'''
 def save_data(df, database_filename):
     engine = create_engine('sqlite:///' + database_filename)
     df.to_sql('disaster_data_cleaned', engine, index=False, if_exists='replace')
 
+'''
+Driver for the application, loads in the data, cleans it, and saves it as a sql database
+'''
 def main():
     if len(sys.argv) == 4:
 

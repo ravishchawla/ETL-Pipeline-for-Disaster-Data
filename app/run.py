@@ -17,6 +17,11 @@ from wordcloud_plotly import plotly_wordcloud
 app = Flask(__name__)
 mpl.use('TkAgg')
 
+'''
+Tokenizes the text and returns cleaned text
+Args: text: The text string to process
+Returns: clean_tokens: Cleaned tokens, with lemmatized words
+'''
 def tokenize(text):
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()

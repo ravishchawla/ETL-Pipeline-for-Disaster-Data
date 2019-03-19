@@ -21,6 +21,13 @@ nltk.download('stopwords')
 nltk.download('wordnet')
 nltk.download('punkt')
 
+'''
+Loads the database into the filename
+Args: database_filepath: the path of the database
+Returns: X: features(messages)
+         Y: categories
+         An ordered list of categories
+'''
 def load_data(database_filepath):
     engine = create_engine('sqlite:///' + database_filepath)
     conn = engine.connect();
@@ -31,6 +38,11 @@ def load_data(database_filepath):
     conn.close();
     return X, Y, Y.columns;
 
+'''
+Tokenize a text and cleaning it
+Args: text: the text to process
+Returns: lemmed: processed text, with removed stop words, and Lemmatization applied
+'''
 def tokenize(text):
     word_net = WordNetLemmatizer();
     
@@ -40,6 +52,10 @@ def tokenize(text):
     lemmed = [word_net.lemmatize(word) for word in words];
     return lemmed;
 
+'''
+Builds a ML model pipeline for training
+Returns: cv: A Grid Search selector on the complete model pipeline
+'''
 def build_model():
     forest = RandomForestClassifier(n_estimators=10, random_state=1024);
     pipeline = Pipeline([('count', CountVectorizer(tokenizer=tokenize)),
@@ -53,7 +69,12 @@ def build_model():
 
     return cv;
 
-
+'''
+Evalutates the model on testing data
+Args: X_test: Messages to test on
+      Y_test: Categories to predict
+      category_names: Category label names
+'''
 def evaluate_model(model, X_test, Y_test, category_names):
     Y_preds = model.predict(X_test);
     Y_preds = pd.DataFrame(Y_preds);
@@ -65,10 +86,17 @@ def evaluate_model(model, X_test, Y_test, category_names):
         print(classification_report(Y_test[column], Y_preds[column]))
 
 
+'''
+Saves the model to a file
+Args: model: The Scikit-Learn model to save
+      model_filepath: The file in which to save the model
+'''
 def save_model(model, model_filepath):
     pickle.dump(model, open(model_filepath, 'wb'));
 
-
+'''
+Driver for the application, loads in the data, trains the model, evaluates, and saves the results.
+'''
 def main():
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
