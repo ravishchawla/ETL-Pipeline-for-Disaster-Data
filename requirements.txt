@@ -24,7 +24,7 @@ matplotlib==3.0.2
 mkl-fft==1.0.6
 mkl-random==1.0.1
 nbformat==4.4.0
-nltk==3.4
+nltk==3.6.6
 numpy==1.15.3
 olefile==0.46
 pandas==0.24.1
